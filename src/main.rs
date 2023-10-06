@@ -1,3 +1,5 @@
+use std::env; 
+
 #[derive(Debug)]
 pub struct Task{
     task: String,
@@ -9,10 +11,10 @@ impl Task{
     fn update_status(&mut self){
         self.done_status = true; 
     }
-}
 
-fn update_task_status(task: &mut Task){
-    task.update_status(); 
+    fn update_task(&mut self, new_name: String){
+        self.task = new_name; 
+    }
 }
 
 fn display_todo(todo_list: &Vec<Task>){
@@ -52,28 +54,73 @@ fn remove_task(todo_list: &mut Vec<Task>, id_no: u64){
    }
 }
 
+fn get_task(todo_list: &mut Vec<Task>, task_id: u64) -> Result<&mut Task, &str>{
+
+    for task in todo_list{
+        if task.id == task_id{
+            return Ok(task);
+        }else{
+            continue;
+        }
+    };
+
+    return Err("Task not found in todo list"); 
+
+}
+
+fn parse_arguments(args: &[String], todo_list: &mut Vec<Task>){
+    let command = args[1].as_str();
+
+    match command{
+        "add" => {
+
+            let new_task = args[2].clone(); 
+
+            add_new_task(todo_list, new_task); 
+            display_todo(todo_list); 
+        },
+
+        "show" =>{
+
+            display_todo(todo_list); 
+
+        },
+
+        "delete" => {
+            let task_id: u64 = args[2].parse().unwrap(); 
+
+            remove_task(todo_list, task_id); 
+        },
+
+        "update" => {
+            let task_id: u64= args[2].parse().unwrap();
+
+            let new_task = args[3].clone(); 
+
+            let old_task = get_task(todo_list, task_id).unwrap(); 
+            old_task.update_task(new_task);  
+
+        },
+
+        "done" => {
+            let task_id: u64 = args[2].parse().unwrap(); 
+
+            let done_task = get_task(todo_list, task_id).unwrap(); 
+            done_task.update_status();
+        }
+
+        _ => {
+            println!("invalid arguments");
+        }
+        
+    }
+}
+
 fn main() {
     let mut todo_list: Vec<Task> = Vec::new(); 
 
-    // make it command line, use args: add,show, update, remove. 
+    let args: Vec<String> = env::args().collect(); 
 
-    display_todo(&todo_list); 
-    println!("after adding tasks"); 
-    add_new_task(&mut todo_list, String::from("hello world"));
-    add_new_task(&mut todo_list, String::from("hello world again")); 
-    add_new_task(&mut todo_list, String::from("hello world again")); 
-    add_new_task(&mut todo_list, String::from("hello world again")); 
-    add_new_task(&mut todo_list, String::from("hello world again")); 
-    display_todo(&todo_list); 
-
-    println!("after update task status"); 
-    update_task_status(&mut todo_list[0]); 
-
-    display_todo(&todo_list); 
-
-    println!("after removing task"); 
-    remove_task(&mut todo_list, 3); 
-
-    display_todo(&todo_list); 
+    parse_arguments(&args, &mut todo_list);
 
 }
