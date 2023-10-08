@@ -1,126 +1,33 @@
-use std::env; 
+extern crate todo_list; 
+use todo_list::Task; 
 
-#[derive(Debug)]
-pub struct Task{
-    task: String,
-    done_status: bool, 
-    id: u64, 
-}
+use std::io::Write;
+use std::io::stdin; 
+use std::io::stdout; 
 
-impl Task{
-    fn update_status(&mut self){
-        self.done_status = true; 
-    }
 
-    fn update_task(&mut self, new_name: String){
-        self.task = new_name; 
-    }
-}
+fn runprompt(todo: &mut Vec<Task>){
+    loop{
+        let mut stdout = stdout(); 
+        print!("> "); 
+        stdout.flush().expect("can't flush the stdout"); 
 
-fn display_todo(todo_list: &Vec<Task>){
-    if todo_list.len() < 1 {
-        println!("Empty todo list"); 
-        return; 
-    }
+        let mut buffer = String::new();
+        stdin().read_line(&mut buffer).expect("cannot readline"); 
 
-    for item in todo_list{
-        println!("id: {}, name: {}, done: {}", item.id, item.task, item.done_status);
-    }
-}
+        // take the args into the run function of lib and get the result of the computation out. 
+        // * what if the user enter a single command without any white spaces. 
+        let args: Vec<&str> = buffer.split(" ").collect(); 
 
-fn add_new_task(todo_list: &mut Vec<Task>, task_string: String){
-    
-    let id_no: u64 =( todo_list.len() + 1).try_into().unwrap(); 
-
-    let task: Task = Task{
-        task: task_string.clone(), 
-        done_status: false, 
-        id: id_no, 
-    };
-
-    todo_list.push(task); 
-
-    println!("{} added to the todo list", task_string); 
-}
-
-fn remove_task(todo_list: &mut Vec<Task>, id_no: u64){
-
-   for index in 1..todo_list.len(){
-
-        if todo_list[index].id == id_no{
-            todo_list.remove(index); 
-            break; 
-        }
-   }
-}
-
-fn get_task(todo_list: &mut Vec<Task>, task_id: u64) -> Result<&mut Task, &str>{
-
-    for task in todo_list{
-        if task.id == task_id{
-            return Ok(task);
-        }else{
-            continue;
-        }
-    };
-
-    return Err("Task not found in todo list"); 
-
-}
-
-fn parse_arguments(args: &[String], todo_list: &mut Vec<Task>){
-    let command = args[1].as_str();
-
-    match command{
-        "add" => {
-
-            let new_task = args[2].clone(); 
-
-            add_new_task(todo_list, new_task); 
-            display_todo(todo_list); 
-        },
-
-        "show" =>{
-
-            display_todo(todo_list); 
-
-        },
-
-        "delete" => {
-            let task_id: u64 = args[2].parse().unwrap(); 
-
-            remove_task(todo_list, task_id); 
-        },
-
-        "update" => {
-            let task_id: u64= args[2].parse().unwrap();
-
-            let new_task = args[3].clone(); 
-
-            let old_task = get_task(todo_list, task_id).unwrap(); 
-            old_task.update_task(new_task);  
-
-        },
-
-        "done" => {
-            let task_id: u64 = args[2].parse().unwrap(); 
-
-            let done_task = get_task(todo_list, task_id).unwrap(); 
-            done_task.update_status();
-        }
-
-        _ => {
-            println!("invalid arguments");
-        }
+        todo_list::run(args, todo); 
         
     }
 }
 
-fn main() {
-    let mut todo_list: Vec<Task> = Vec::new(); 
+fn main() { 
 
-    let args: Vec<String> = env::args().collect(); 
+    let mut todo: Vec<Task> = Vec::new(); 
 
-    parse_arguments(&args, &mut todo_list);
-
+    runprompt(&mut todo); 
+    
 }
