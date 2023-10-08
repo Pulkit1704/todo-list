@@ -25,7 +25,7 @@ fn display_todo(todo_list: &Vec<Task>){
     }
 
     for item in todo_list{
-        println!("id: {}, name: {}, done: {}", item.id, item.task, item.done_status);
+        println!("{}, name: {}, done: {}", item.id, item.task, item.done_status);
     }
 }
 
@@ -46,13 +46,8 @@ fn add_new_task(todo_list: &mut Vec<Task>, task_string: &str){
 
 fn remove_task(todo_list: &mut Vec<Task>, id_no: u64){
 
-   for index in 1..todo_list.len(){
+    todo_list.retain(|task| task.id != id_no); 
 
-        if todo_list[index].id == id_no{
-            todo_list.remove(index); 
-            break; 
-        }
-   }
 }
 
 fn get_task(todo_list: &mut Vec<Task>, task_id: u64) -> Result<&mut Task, &str>{

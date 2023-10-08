@@ -16,7 +16,6 @@ fn runprompt(todo: &mut Vec<Task>){
         stdin().read_line(&mut buffer).expect("cannot readline"); 
 
         // take the args into the run function of lib and get the result of the computation out. 
-        // * what if the user enter a single command without any white spaces. 
         let args: Vec<&str> = buffer.split_whitespace().collect(); 
 
         todo_list::run(args, todo); 
