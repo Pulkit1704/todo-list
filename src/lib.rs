@@ -1,5 +1,4 @@
-// use std::fs::File; 
-// use std::io::prelude::*; 
+use std::process;
 
 #[derive(Debug)]
 pub struct Task{
@@ -106,6 +105,10 @@ fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>){
             let done_task = get_task(todo_list, task_id).unwrap(); 
             done_task.update_status();
         },
+
+        "exit" => {
+            process::exit(0); 
+        }
 
         _ => {
             println!("invalid arguments");
