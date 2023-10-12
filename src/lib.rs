@@ -27,6 +27,7 @@ fn display_todo(todo_list: &Vec<Task>){
         println!("{}, name: {}, done: {}", item.id, item.task, item.done_status);
     }
 }
+
 // return a result type with empty function and a string message. 
 fn add_new_task(todo_list: &mut Vec<Task>, task_string: &str){
     
@@ -69,6 +70,34 @@ fn  parse_task_id(id_str: &str) -> Result<u64, String>{
         Ok(value) => Ok(value), 
         Err(err) => Err(err.to_string()), 
     }
+}
+
+
+fn display_help(){
+    let help: &str = "
+        Welcome to the todo_list application. 
+        structure of query: 
+            command arguments 
+
+        supported commands: 
+
+        add - Add a new task to the todo list, followed by a new task string. The task string should NOT be space separated. 
+
+        show - Display the todo list 
+
+        delete - delete a task from the todo list, followed by an integer number task id. 
+
+        update - change the name of a task, followed by an integer number task id. 
+
+        done - change the done status of a task from false to true, follwed by an integer number task id. 
+
+        exit- exit the program. 
+
+        help - display this help message. 
+    ";
+
+    println!("{}", help); 
+
 }
 
 fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>){
@@ -155,8 +184,8 @@ fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>){
             process::exit(0); 
         }
 
-        _ => {
-            println!("invalid arguments");
+        "help" | _ => {
+            display_help(); 
         }
         
     }
