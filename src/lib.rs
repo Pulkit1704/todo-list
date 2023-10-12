@@ -27,7 +27,7 @@ fn display_todo(todo_list: &Vec<Task>){
         println!("{}, name: {}, done: {}", item.id, item.task, item.done_status);
     }
 }
-
+// return a result type with empty function and a string message. 
 fn add_new_task(todo_list: &mut Vec<Task>, task_string: &str){
     
     let id_no: u64 =( todo_list.len() + 1).try_into().unwrap(); 
@@ -63,16 +63,27 @@ fn get_task(todo_list: &mut Vec<Task>, task_id: u64) -> Result<&mut Task, &str>{
 
 }
 
+fn  parse_task_id(id_str: &str) -> Result<u64, String>{
+
+    match id_str.parse(){
+        Ok(value) => Ok(value), 
+        Err(err) => Err(err.to_string()), 
+    }
+}
+
 fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>){
     let command = args[0];
 
     match command{
         "add" => {
 
-            let new_task = args[1].clone(); 
-
-            add_new_task(todo_list, new_task); 
-            display_todo(todo_list); 
+            if let Some(value) = args.get(1){
+                let new_task = *value; 
+                add_new_task(todo_list, new_task); 
+                display_todo(todo_list); 
+            }else{
+                println!("please provide a new name for the task"); 
+            }
         },
 
         "show" =>{
@@ -84,26 +95,60 @@ fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>){
         // integer parsing needs error handling 
 
         "delete" => {
-            let task_id: u64 = args[1].parse::<u64>().unwrap(); 
 
-            remove_task(todo_list, task_id); 
+            match parse_task_id(&args[1]){
+                Ok(value) =>{
+                    remove_task(todo_list, value);
+                }
+
+                Err(message) =>{
+                    println!("{}", message); 
+                }
+            }
         },
 
         "update" => {
-            let task_id: u64= args[1].parse::<u64>().unwrap();
+            
+            // possibility 1: id parsing error 
+            match parse_task_id(&args[1]){
+                Ok(value) => {
 
-            let new_task = args[2].clone(); 
+                    // possibility 2: task getting error 
+                    if let Ok(task) = get_task(todo_list, value){
 
-            let old_task = get_task(todo_list, task_id).unwrap(); 
-            old_task.update_task(new_task.into());  
+                        // possibility 3: no third argument provided. 
+                        if let Some(value) = args.get(2){
+                            let new_task = *value; 
+                            task.update_task(new_task.into()); 
+                        }else{
+                            println!("no new task provided"); 
+                        }
 
+                    }else{
+                        println!("task not found in todo list"); 
+                    }
+                },
+
+                Err(message) => {
+                    print!("{}", message); 
+                }
+            }
         },
 
         "done" => {
-            let task_id: u64 = args[1].parse::<u64>().unwrap(); 
 
-            let done_task = get_task(todo_list, task_id).unwrap(); 
-            done_task.update_status();
+            match parse_task_id(args[1]){
+                Ok(value) =>{
+                    if let Ok(task) = get_task(todo_list, value){
+                        task.update_status(); 
+                    }else{
+                        println!("task id not found in list"); 
+                    }
+                }, 
+                Err(message) =>{
+                    println!("{}", message.to_string());
+                }
+            }
         },
 
         "exit" => {
