@@ -64,14 +64,6 @@ fn get_task(todo_list: &mut Vec<Task>, task_id: u64) -> Result<&mut Task, &str>{
 
 }
 
-fn  parse_task_id(id_str: &str) -> Result<u64, String>{
-
-    match id_str.parse(){
-        Ok(value) => Ok(value), 
-        Err(err) => Err(err.to_string()), 
-    }
-}
-
 
 fn display_help(){
     let help: &str = "
@@ -125,13 +117,13 @@ fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>){
 
         "delete" => {
 
-            match parse_task_id(&args[1]){
+            match &args[1].parse::<u64>(){
                 Ok(value) =>{
-                    remove_task(todo_list, value);
+                    remove_task(todo_list, *value);
                 }
 
                 Err(message) =>{
-                    println!("{}", message); 
+                    println!("{}", message.to_string()); 
                 }
             }
         },
@@ -139,11 +131,11 @@ fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>){
         "update" => {
             
             // possibility 1: id parsing error 
-            match parse_task_id(&args[1]){
+            match &args[1].parse::<u64>(){
                 Ok(value) => {
 
                     // possibility 2: task getting error 
-                    if let Ok(task) = get_task(todo_list, value){
+                    if let Ok(task) = get_task(todo_list, *value){
 
                         // possibility 3: no third argument provided. 
                         if let Some(value) = args.get(2){
@@ -166,9 +158,9 @@ fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>){
 
         "done" => {
 
-            match parse_task_id(args[1]){
+            match &args[1].parse::<u64>(){
                 Ok(value) =>{
-                    if let Ok(task) = get_task(todo_list, value){
+                    if let Ok(task) = get_task(todo_list, *value){
                         task.update_status(); 
                     }else{
                         println!("task id not found in list"); 

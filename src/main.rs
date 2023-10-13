@@ -5,7 +5,6 @@ use std::io::Write;
 use std::io::stdin; 
 use std::io::stdout; 
 
-
 fn runprompt(todo: &mut Vec<Task>){
     loop{
         let mut stdout = stdout(); 
