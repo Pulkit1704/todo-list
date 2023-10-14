@@ -113,8 +113,6 @@ fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>){
 
         },
 
-        // integer parsing needs error handling 
-
         "delete" => {
 
             match &args[1].parse::<u64>(){
