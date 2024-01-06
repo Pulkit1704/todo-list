@@ -1,4 +1,4 @@
-use std::process;
+use std::{process, sync::atomic::{AtomicU64, self}};
 
 #[derive(Debug)]
 pub struct Task{
@@ -17,6 +17,8 @@ impl Task{
     }
 }
 
+static UNIQUE_ID: AtomicU64  = AtomicU64::new(1); 
+
 fn display_todo(todo_list: &Vec<Task>){
     if todo_list.len() < 1 {
         println!("Empty todo list"); 
@@ -24,14 +26,14 @@ fn display_todo(todo_list: &Vec<Task>){
     }
 
     for item in todo_list{
-        println!("{}, name: {}, done: {}", item.id, item.task, item.done_status);
+        println!("id: {}, name: {}, done: {}", item.id, item.task, item.done_status);
     }
 }
 
 // return a result type with empty function and a string message. 
 fn add_new_task(todo_list: &mut Vec<Task>, task_string: &str){
-    
-    let id_no: u64 =( todo_list.len() + 1).try_into().unwrap(); 
+
+    let id_no = UNIQUE_ID.fetch_add(1, atomic::Ordering::SeqCst);
 
     let task: Task = Task{
         task: task_string.into(), 
@@ -41,7 +43,7 @@ fn add_new_task(todo_list: &mut Vec<Task>, task_string: &str){
 
     todo_list.push(task); 
 
-    println!("{} added to the todo list", task_string); 
+    println!("{} added to the todo list: ", task_string); 
 }
 
 fn remove_task(todo_list: &mut Vec<Task>, id_no: u64){
@@ -69,27 +71,43 @@ fn display_help(){
     let help: &str = "
         Welcome to the todo_list application. 
         structure of query: 
-            command arguments 
+            command [arguments] 
 
         supported commands: 
+            add - Add a new task to the todo list, followed by a new task string. The task string should NOT be space separated. 
 
-        add - Add a new task to the todo list, followed by a new task string. The task string should NOT be space separated. 
+                usage: >add task_string
 
-        show - Display the todo list 
+            show - Display the todo list 
+                
+                usage: >show
 
-        delete - delete a task from the todo list, followed by an integer number task id. 
+            delete - delete a task from the todo list, based on the task id provided by the user in the prompt. 
 
-        update - change the name of a task, followed by an integer number task id. 
+                usage: >delete task_id
 
-        done - change the done status of a task from false to true, follwed by an integer number task id. 
+            update - change the name of a task, followed by an integer number task id. 
 
-        exit- exit the program. 
+                usage: >update task_id new_task_string 
 
-        help - display this help message. 
-    ";
+            done - change the done status of a task from false to true, follwed by an integer number task id. 
+                
+                usage: >done task_id 
+
+            exit- exit the program. 
+                
+                usage: >exit
+
+            help - display this help message. 
+                
+                usage: >help 
+        
+        arguments: 
+            task_id: the unique id assigned to each task. 
+
+            task_string: the string for the task provided by the user. ";
 
     println!("{}", help); 
-
 }
 
 fn parse_arguments(args: Vec<&str>, todo_list: &mut Vec<Task>){

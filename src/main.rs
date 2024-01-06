@@ -8,7 +8,7 @@ use std::io::stdout;
 fn runprompt(todo: &mut Vec<Task>){
     loop{
         let mut stdout = stdout(); 
-        print!("> "); 
+        print!("(todo list) > "); 
         stdout.flush().expect("can't flush the stdout"); 
 
         let mut buffer = String::new();
