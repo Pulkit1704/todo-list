@@ -30,7 +30,6 @@ fn display_todo(todo_list: &Vec<Task>){
     }
 }
 
-// return a result type with empty function and a string message. 
 fn add_new_task(todo_list: &mut Vec<Task>, task_string: &str){
 
     let id_no = UNIQUE_ID.fetch_add(1, atomic::Ordering::SeqCst);
